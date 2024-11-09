@@ -1,13 +1,16 @@
 from django.shortcuts import render
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions  # generics provides class-based views, permissions helps us control access
 from .models import Transaction
 from .models import Budget
 from .serializer import TransactionSerializer
 from .serializer import BudgetSeriealizer
+from .serializer import UserSerializer
 
 
 # Create your views here.
+# label these
 class TransactionListCreate(generics.ListCreateAPIView):  # lets us list & create records in a single view
     ''' 
     List & Create Transactions, user is saved when transaction is created. 
@@ -65,9 +68,21 @@ class BudgetRetrieveUpdateDetroy(generics.RetrieveUpdateDestroyAPIView):
         return Budget.objects.filter(user=self.request.user)
 
 
-# User Creation
-# User Authentication
-# User Deletion/Updates
+class UserRegistration(generics.CreateAPIView):
+    serializer_class= UserSerializer
+    queryset=User.objects.all()
+
+
+class UserDelete(generics.DetroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"detail": "Account deleted successfully."})
+    
+# User login (not needed using django's built in authenticator, login handled in urls.py/directly at endpiint)
+
     
 # Dashboard Graph endpoint
 # 
